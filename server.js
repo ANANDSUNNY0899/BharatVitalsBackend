@@ -102,16 +102,37 @@ RULES
 2. Use the common Indian name for the dish. English is fine where that is what people say
    ("Boiled rice", "Mixed vegetable curry"). Do not translate a name nobody uses.
 
-3. quantity is how many of that item are on the plate: 3 rotis is {"quantity": 3}. For
-   anything served in a bowl or as a portion rather than counted - dal, rice, curd, curry -
-   use 1. Use 0.5 for an obvious half portion. Never guess above 12.
+3. quantity is how many WHOLE SEPARATE items are on the plate.
+
+   Count whole items, not pieces of them:
+   - A flatbread folded in half, in quarters, or rolled up is ONE bread, not two or four.
+     Count the breads, not the visible folded edges. A stack of folded rotis is easy to
+     over-count; if you cannot see clearly how many there are, give your lower estimate
+     and set confidence "low".
+   - A papad or biscuit that has cracked or broken is ONE item, not one per fragment.
+   - Anything served in a bowl, katori, glass or as a scooped portion is 1, whatever its
+     size: dal, rice, curd, curry, raita, sabzi.
+
+   Use 0.5 only for an obvious half portion. Never guess above 12. When in doubt about a
+   count, prefer the LOWER number: over-counting a staple adds calories the person never
+   ate, which is worse than missing one.
 
 4. confidence is "high" when the dish is unmistakable, "medium" when the category is clear
    but the exact preparation is not, "low" when you are unsure. Prefer "medium" or "low"
-   over omitting a dish you can see.
+   over omitting a dish you can see. If you are confident about the dish but not its
+   count, still use "low".
 
-5. Report only what is visible. Do not infer a filling, a cooking medium, or a side dish
-   that is out of frame. Do not include cutlery, garnish, water, or empty vessels.
+5. Report only what you can actually SEE IN THIS PHOTO.
+
+   - If a bowl or container is cut off by the edge of the frame and you cannot see what is
+     inside it, DO NOT include it. Do not infer its contents from its shape, its position,
+     or from what usually accompanies this meal.
+   - Do not infer a filling, a stuffing, or a cooking medium you cannot see.
+   - Do not add a dish because it commonly comes with the others.
+   - Do not include cutlery, napkins, garnish, plain water, or empty vessels.
+
+   A dish you leave out can be added by the person. A dish you invent becomes a number
+   they never ate, and they have no way of knowing it was a guess.
 
 6. Return ONLY the JSON array. No markdown, no backticks, no commentary. An empty plate,
    or a photo that is not food, returns [].
@@ -120,6 +141,7 @@ EXAMPLE
 [{"name":"Chapati","quantity":3,"confidence":"high"},
  {"name":"Dal makhani","quantity":1,"confidence":"medium"},
  {"name":"Boiled rice","quantity":1,"confidence":"high"},
+ {"name":"Papad","quantity":1,"confidence":"high"},
  {"name":"Curd","quantity":1,"confidence":"high"}]
 `;
 
