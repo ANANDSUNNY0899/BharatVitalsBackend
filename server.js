@@ -89,6 +89,39 @@ function rateLimit(req, res, next) {
 const PROMPT_FREEFORM = `
 You are identifying the dishes in a photograph of a meal, usually an Indian thali or plate.
 
+THREE ABSOLUTE CONSTRAINTS. Apply these before anything else below.
+
+A. NEVER NAME A CONTAINER YOU CANNOT SEE INTO.
+   Look at each bowl, katori, glass and vessel. If it is cut off by the edge of the frame,
+   hidden behind another dish, turned away, or its contents are otherwise not clearly
+   visible, LEAVE IT OUT ENTIRELY. Do not name it from its shape, its size, its position
+   on the plate, its lid, or from what usually accompanies this meal. A partly visible rim
+   with nothing identifiable inside it is not a dish - it is a container, and you omit it.
+   This applies no matter how confident you feel about what is probably in it.
+
+B. COUNT WHOLE ITEMS, NEVER PIECES.
+   Before giving any count above 1, ask yourself: am I counting separate items, or parts
+   of one item? A bread folded in half or quarters is ONE bread. A papad broken into
+   fragments is ONE papad. A stack seen edge-on shows more folds than there are breads.
+   If the count is not obvious, give the LOWER number and set confidence "low".
+
+C. ONE ENTRY PER PHYSICAL SERVING.
+   Every entry in your answer must be a different portion of food on the plate. Before you
+   add an entry, check it against the ones you already have: is this the same food I have
+   already named? If yes, do not add it again.
+   The mistake this prevents is naming one food twice - once specifically and once
+   generally. A single serving of peas pulao is "Peas pulao" and nothing else; it is NOT
+   also "Boiled rice". Dal makhani is not also "Dal". Aloo gobi is not also "Mixed
+   vegetable curry". Masala dosa is not also "Dosa". Pick the one name that best describes
+   what you see, and use it once.
+   Rice deserves particular care: pulao, biryani, jeera rice, curd rice and plain rice are
+   alternatives, not companions. Report plain rice alongside a flavoured rice only when you
+   can see two visibly separate rice portions on the plate.
+
+Everything you report must be something you can point to in this photograph. A dish you
+leave out, the person can add. A dish you invent becomes a number they never ate, and
+nothing on their screen will tell them it was a guess.
+
 Return a JSON array. Each element describes one dish you can actually see:
 
   {"name": "<dish name>", "quantity": <number>, "confidence": "high"|"medium"|"low"}
@@ -111,7 +144,9 @@ RULES
      and set confidence "low".
    - A papad or biscuit that has cracked or broken is ONE item, not one per fragment.
    - Anything served in a bowl, katori, glass or as a scooped portion is 1, whatever its
-     size: dal, rice, curd, curry, raita, sabzi.
+     size: dal, rice, curd, curry, raita, sabzi. A large mound of rice is still 1. Never
+     report 1.5 or 2 for a single scooped serving because it looks generous - the size of a
+     portion is not a count, and the app already assumes a full serving.
 
    Use 0.5 only for an obvious half portion. Never guess above 12. When in doubt about a
    count, prefer the LOWER number: over-counting a staple adds calories the person never
@@ -122,25 +157,23 @@ RULES
    over omitting a dish you can see. If you are confident about the dish but not its
    count, still use "low".
 
-5. Report only what you can actually SEE IN THIS PHOTO.
+5. Constraint A again, because it is the one most often broken: do not name a container
+   whose contents you cannot see. Also do not infer a filling or stuffing you cannot see,
+   do not add a dish because it commonly comes with the others, and do not include
+   cutlery, napkins, garnish, plain water, or empty vessels.
 
-   - If a bowl or container is cut off by the edge of the frame and you cannot see what is
-     inside it, DO NOT include it. Do not infer its contents from its shape, its position,
-     or from what usually accompanies this meal.
-   - Do not infer a filling, a stuffing, or a cooking medium you cannot see.
-   - Do not add a dish because it commonly comes with the others.
-   - Do not include cutlery, napkins, garnish, plain water, or empty vessels.
+6. Constraint C again: read your finished list before returning it. If any two entries
+   could be the same portion of food under two different names, delete the vaguer one and
+   keep the specific one. Two entries naming the same serving double its calories, and the
+   person has no way to know which of the two is the invented one.
 
-   A dish you leave out can be added by the person. A dish you invent becomes a number
-   they never ate, and they have no way of knowing it was a guess.
-
-6. Return ONLY the JSON array. No markdown, no backticks, no commentary. An empty plate,
+7. Return ONLY the JSON array. No markdown, no backticks, no commentary. An empty plate,
    or a photo that is not food, returns [].
 
-EXAMPLE
+EXAMPLE - a plate with one flavoured rice, note that plain rice is NOT also listed
 [{"name":"Chapati","quantity":3,"confidence":"high"},
  {"name":"Dal makhani","quantity":1,"confidence":"medium"},
- {"name":"Boiled rice","quantity":1,"confidence":"high"},
+ {"name":"Peas pulao","quantity":1,"confidence":"high"},
  {"name":"Papad","quantity":1,"confidence":"high"},
  {"name":"Curd","quantity":1,"confidence":"high"}]
 `;
